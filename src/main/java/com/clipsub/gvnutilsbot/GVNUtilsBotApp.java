@@ -40,7 +40,6 @@ public class GVNUtilsBotApp extends ListenerAdapter {
 
         channel.retrieveMessageById(msgId).queue(message -> {
             if (pinEmoji.equals(PIN_EMOTE)) {
-                System.out.println("Oh yeah");
                 channel.pinMessageById(message.getIdLong()).queue();
             }
         });
@@ -49,7 +48,6 @@ public class GVNUtilsBotApp extends ListenerAdapter {
     @Override
     public void onMessageReactionRemove(@Nonnull MessageReactionRemoveEvent event) {
         String msgId = event.getMessageId();
-        System.out.println("Go here 2");
         event.getChannel().retrieveMessageById(msgId).queue(message -> {
             List<MessageReaction> reactions = message
                     .getReactions()
