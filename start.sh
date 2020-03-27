@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export DISCORD_TOKEN=token_value
+export DISCORD_TOKEN=token
 mvn package
-unset DISCORD_TOKEN
 java -jar target/gvn-utils-bot-1.0.0.jar
+unset DISCORD_TOKEN
