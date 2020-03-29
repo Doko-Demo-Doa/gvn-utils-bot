@@ -3,6 +3,8 @@ package com.clipsub.gvnutilsbot;
 import com.clipsub.gvnutilsbot.ai.NSFWProcessor;
 import com.clipsub.gvnutilsbot.pin.PinProcessor;
 import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.OnlineStatus;
+import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -41,6 +43,7 @@ public class GVNUtilsBotApp extends ListenerAdapter {
     @Override
     public void onReady(@Nonnull ReadyEvent event) {
         super.onReady(event);
+        event.getJDA().getPresence().setPresence(OnlineStatus.ONLINE, Activity.playing("Pin Bot, NSFW detector"));
 //        scheduler.scheduleAtFixedRate(() -> {
 //
 //        }, 0, 2, TimeUnit.MINUTES);

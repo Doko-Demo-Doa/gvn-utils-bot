@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class PinProcessor {
-    private static int PIN_THRESHOLD = 2;
+    private static int PIN_THRESHOLD = 5;
     private static String PIN_EMOTE = "\uD83D\uDCCC";
 
     public void onMessageReactionAdd(@Nonnull MessageReactionAddEvent event) {
