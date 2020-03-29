@@ -17,43 +17,54 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 public class NSFWProcessor {
-    private static float SFW_THRESHOLD = 0.7f;
+    private static float SFW_THRESHOLD = 0.85f;
 
     public void processAttachment(Message m) {
-        String img = "https://i.ibb.co/0BHss9p/1173690-20200322004317-1.png";
-
         boolean isGeneralChannel = System.getenv("GENERAL_CHANNEL_ID").equals(m.getChannel().getId());
         if (!isGeneralChannel) return;
+        boolean safe = true;
 
-        Model<Concept> nsfwModel = NSFWDetectorClient.get().getDefaultModels().nsfwModel();
-        PredictRequest<Concept> request = nsfwModel.predict().withInputs(
-                ClarifaiInput.forImage(img));
+        if (m.getAttachments().size() < 1) return;
+        if (m.getAuthor().isBot()) return;
 
-        List<ClarifaiOutput<Concept>> result = request.executeSync().get();
-        Concept dc = result.get(0).data().get(0);
+        m.getAttachments().forEach(attachment -> {
+            if (!attachment.isImage() && !attachment.isVideo()) return;
+            if (attachment.getFileName().startsWith("SPOILER_")) return;
 
-        if (dc.name() != null && dc.name().equals("nsfw")) {
-            this.processNsfwMessage(m);
-            return;
-        }
-        if (dc.name() != null && dc.name().equals("sfw") && dc.value() < SFW_THRESHOLD) {
-            this.processNsfwMessage(m);
-        }
+            // Get media url.
+            String media = attachment.getUrl();
+
+            Model<Concept> nsfwModel = NSFWDetectorClient.get().getDefaultModels().nsfwModel();
+            PredictRequest<Concept> request = nsfwModel.predict().withInputs(
+                    ClarifaiInput.forImage(media));
+
+            List<ClarifaiOutput<Concept>> result = request.executeSync().get();
+            Concept dc = result.get(0).data().get(0);
+
+            if (dc.name() != null && dc.name().equals("nsfw")) {
+                this.processNsfwMessage(m);
+                return;
+            }
+            if (dc.name() != null && dc.name().equals("sfw") && dc.value() < SFW_THRESHOLD) {
+                this.processNsfwMessage(m);
+            }
+        });
     }
 
     public void processNsfwMessage(Message message) {
-        System.out.println(message.getChannel().getId());
-
+        if (message.getAuthor().isBot()) return;
+        if (message.getAttachments().size() > 0 && message.getAttachments().get(0).getFileName().startsWith("SPOILER_"))
+            return;
         TextChannel currentTextChannel = message.getTextChannel();
 
         String newContent = message.getContentStripped()
                 .replace("!nsfw", "")
                 .replace("!ns", "");
 
-        String builder = "From " +
+        String builder = "Nguyên văn từ " +
                 "<@" +
                 message.getAuthor().getIdLong() +
-                "> :" +
+                "> : " +
                 newContent;
         // Create MessageAction.
         MessageAction composingAction = currentTextChannel.sendMessage(builder);
@@ -68,19 +79,16 @@ public class NSFWProcessor {
                 composingAction.addFile(fileStream, attachment.getFileName(), AttachmentOption.SPOILER);
 
                 cachedStreams.add(fileStream);
-
-                // Cleanup temp. file after using.
-                // attachmentFile.delete();
             } catch (InterruptedException | ExecutionException e) {
                 e.printStackTrace();
             }
         });
 
         // Execute sending new message:
-        composingAction.queue();
+        composingAction.complete();
 
         // Delete old message reference:
-        message.delete().queue();
+        message.delete().complete();
 
         // Delete cached files.
         cachedStreams.forEach(inputStream -> {
@@ -90,6 +98,6 @@ public class NSFWProcessor {
                 e.printStackTrace();
             }
         });
-        cachedStreams.clear();
+        // cachedStreams.clear();
     }
 }

@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class PinProcessor {
-    private static int PIN_THRESHOLD = 1;
+    private static int PIN_THRESHOLD = 2;
     private static String PIN_EMOTE = "\uD83D\uDCCC";
 
     public void onMessageReactionAdd(@Nonnull MessageReactionAddEvent event) {
@@ -37,7 +37,7 @@ public class PinProcessor {
                     .filter(messageReaction -> messageReaction.getReactionEmote().getName().equals(PIN_EMOTE))
                     .collect(Collectors.toList());
 
-            if (reactions.size() < PIN_THRESHOLD) {
+            if (reactions.size() <= PIN_THRESHOLD - 2) {
                 event.getChannel().unpinMessageById(msgId).queue();
             }
         }, failure -> System.out.println("Error"));
