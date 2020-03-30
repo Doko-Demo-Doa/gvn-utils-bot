@@ -22,16 +22,16 @@ import java.util.concurrent.ExecutionException;
 public class NSFWProcessor {
     private static float SFW_THRESHOLD = 0.85f;
 
-    public void handlePotentialNsfwMessage(Message m) {
-        String extracted = URLExtractor.extractUrl(m.getContentRaw());
-        if (extracted != null && m.getAttachments().size() == 0) {
-            this.processNsfwImageLink(extracted, m);
-            return;
-        }
-
+    public void handlePotentialNsfwMessage(Message m) {d .
         try {
             if (m.getContentRaw().startsWith("!nsfw") || m.getContentRaw().startsWith("!ns")) {
                 this.processNsfwMessage(m);
+                return;
+            }
+
+            String extracted = URLExtractor.extractUrl(m.getContentRaw());
+            if (extracted != null && m.getAttachments().size() == 0) {
+                this.processNsfwImageLink(extracted, m);
                 return;
             }
 
