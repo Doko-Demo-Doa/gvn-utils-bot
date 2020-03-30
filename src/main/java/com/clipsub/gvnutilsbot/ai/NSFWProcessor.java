@@ -5,13 +5,16 @@ import clarifai2.dto.input.ClarifaiInput;
 import clarifai2.dto.model.Model;
 import clarifai2.dto.model.output.ClarifaiOutput;
 import clarifai2.dto.prediction.Concept;
+import com.clipsub.gvnutilsbot.helpers.URLExtractor;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
 import net.dv8tion.jda.api.utils.AttachmentOption;
 
+import javax.imageio.ImageIO;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -19,10 +22,61 @@ import java.util.concurrent.ExecutionException;
 public class NSFWProcessor {
     private static float SFW_THRESHOLD = 0.85f;
 
+    public void handlePotentialNsfwMessage(Message m) {
+        String extracted = URLExtractor.extractUrl(m.getContentRaw());
+        if (extracted != null && m.getAttachments().size() == 0) {
+            this.processNsfwImageLink(extracted, m);
+            return;
+        }
+
+        try {
+            if (m.getContentRaw().startsWith("!nsfw") || m.getContentRaw().startsWith("!ns")) {
+                this.processNsfwMessage(m);
+                return;
+            }
+
+            this.processAttachment(m);
+        } catch (Exception e) {
+            // Code...
+        }
+    }
+
+    private boolean handleUsingAI(String url) {
+        Model<Concept> nsfwModel = NSFWDetectorClient.get().getDefaultModels().nsfwModel();
+        PredictRequest<Concept> request = nsfwModel.predict().withInputs(
+                ClarifaiInput.forImage(url));
+
+        List<ClarifaiOutput<Concept>> result = request.executeSync().get();
+        Concept dc = result.get(0).data().get(0);
+
+        if (dc.name() != null && dc.name().equals("nsfw")) {
+            return true;
+        }
+        return dc.name() != null && dc.name().equals("sfw") && dc.value() < SFW_THRESHOLD;
+    }
+
+    public void processNsfwImageLink(String link, Message m) {
+        if (m.getContentRaw().startsWith("||")) return;
+        try {
+            if (ImageIO.read(new URL(link)) != null && this.handleUsingAI(link)) {
+                String builder = "||Nguyên văn từ " +
+                        "<@" +
+                        m.getAuthor().getIdLong() +
+                        "> : " +
+                        m.getContentRaw() + "||";
+
+                TextChannel currentTextChannel = m.getTextChannel();
+                currentTextChannel.sendMessage(builder).complete();
+                m.delete().queue();
+            }
+        } catch (IOException e) {
+            // Code...
+        }
+    }
+
     public void processAttachment(Message m) {
         boolean isGeneralChannel = System.getenv("GENERAL_CHANNEL_ID").equals(m.getChannel().getId());
         if (!isGeneralChannel) return;
-        boolean safe = true;
 
         if (m.getAttachments().size() < 1) return;
         if (m.getAuthor().isBot()) return;
@@ -34,18 +88,7 @@ public class NSFWProcessor {
             // Get media url.
             String media = attachment.getUrl();
 
-            Model<Concept> nsfwModel = NSFWDetectorClient.get().getDefaultModels().nsfwModel();
-            PredictRequest<Concept> request = nsfwModel.predict().withInputs(
-                    ClarifaiInput.forImage(media));
-
-            List<ClarifaiOutput<Concept>> result = request.executeSync().get();
-            Concept dc = result.get(0).data().get(0);
-
-            if (dc.name() != null && dc.name().equals("nsfw")) {
-                this.processNsfwMessage(m);
-                return;
-            }
-            if (dc.name() != null && dc.name().equals("sfw") && dc.value() < SFW_THRESHOLD) {
+            if (this.handleUsingAI(media)) {
                 this.processNsfwMessage(m);
             }
         });

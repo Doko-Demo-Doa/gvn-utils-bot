@@ -5,7 +5,6 @@ import com.clipsub.gvnutilsbot.pin.PinProcessor;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
-import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
@@ -51,17 +50,7 @@ public class GVNUtilsBotApp extends ListenerAdapter {
 
     @Override
     public void onMessageReceived(@Nonnull MessageReceivedEvent event) {
-        try {
-            Message m = event.getMessage();
-            if (m.getContentRaw().startsWith("!nsfw") || m.getContentRaw().startsWith("!ns")) {
-                nsfwProcessor.processNsfwMessage(m);
-                return;
-            }
-
-            nsfwProcessor.processAttachment(m);
-        } catch (Exception e) {
-            // Code...
-        }
+        nsfwProcessor.handlePotentialNsfwMessage(event.getMessage());
     }
 
     @Override
