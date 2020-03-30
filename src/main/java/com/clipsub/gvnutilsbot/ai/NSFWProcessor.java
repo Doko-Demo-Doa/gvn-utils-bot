@@ -22,7 +22,7 @@ import java.util.concurrent.ExecutionException;
 public class NSFWProcessor {
     private static float SFW_THRESHOLD = 0.85f;
 
-    public void handlePotentialNsfwMessage(Message m) {d .
+    public void handlePotentialNsfwMessage(Message m) {
         try {
             if (m.getContentRaw().startsWith("!nsfw") || m.getContentRaw().startsWith("!ns")) {
                 this.processNsfwMessage(m);
