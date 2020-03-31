@@ -1,6 +1,5 @@
 package com.clipsub.gvnutilsbot.pin;
 
-import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageReaction;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
@@ -18,8 +17,6 @@ public class PinProcessor {
         String pinEmoji = event.getReactionEmote().getName();
         String msgId = event.getMessageId();
         TextChannel channel = event.getTextChannel();
-
-        Message m = channel.retrieveMessageById(msgId).complete();
 
         channel.retrieveMessageById(msgId).queue(message -> {
             if (pinEmoji.equals(PIN_EMOTE)) {
