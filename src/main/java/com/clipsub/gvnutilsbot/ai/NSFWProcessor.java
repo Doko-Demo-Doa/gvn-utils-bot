@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 public class NSFWProcessor {
-    private static float SFW_THRESHOLD = 0.75f;
+    private static float SFW_THRESHOLD = 0.78f;
 
     public void handlePotentialNsfwMessage(Message m) {
         try {
@@ -48,11 +48,12 @@ public class NSFWProcessor {
 
         List<ClarifaiOutput<Concept>> result = request.executeSync().get();
         Concept dc = result.get(0).data().get(0);
+        Concept dc2 =  result.get(0).data().get(1);
 
         if (dc.name() != null && dc.name().equals("nsfw")) {
             return true;
         }
-        return dc.name() != null && dc.name().equals("sfw") && dc.value() < SFW_THRESHOLD;
+        return dc.name() != null && dc.name().equals("sfw") && dc2.value() > SFW_THRESHOLD;
     }
 
     public void processNsfwImageLink(String link, Message m) {
