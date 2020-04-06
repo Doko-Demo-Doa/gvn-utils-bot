@@ -16,3 +16,9 @@ log/
 target/
 start.sh
 start_gvn.sh
+
+# VSCode
+.vscode/
+
+# .env
+.env

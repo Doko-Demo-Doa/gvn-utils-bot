@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 public class NSFWProcessor {
-    private static float SFW_THRESHOLD = 0.78f;
+    private static float SFW_THRESHOLD = 0.69f;
 
     public void handlePotentialNsfwMessage(Message m) {
         try {
