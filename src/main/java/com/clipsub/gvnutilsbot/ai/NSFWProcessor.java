@@ -48,7 +48,7 @@ public class NSFWProcessor {
 
         List<ClarifaiOutput<Concept>> result = request.executeSync().get();
         Concept dc = result.get(0).data().get(0);
-        Concept dc2 =  result.get(0).data().get(1);
+        Concept dc2 = result.get(0).data().get(1);
 
         if (dc.name() != null && dc.name().equals("nsfw")) {
             return true;
