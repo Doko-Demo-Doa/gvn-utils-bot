@@ -16,6 +16,7 @@ log/
 target/
 start.sh
 start_gvn.sh
+.factorypath
 
 # VSCode
 .vscode/
