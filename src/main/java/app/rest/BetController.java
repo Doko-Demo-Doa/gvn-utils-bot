@@ -11,7 +11,7 @@ import java.util.Map;
 
 @RESTful
 public class BetController extends AppController {
-    private ObjectMapper mapper = new ObjectMapper();
+    private final ObjectMapper mapper = new ObjectMapper();
 
     public void index() {
         List<Bet> bets = Bet.findAll();
