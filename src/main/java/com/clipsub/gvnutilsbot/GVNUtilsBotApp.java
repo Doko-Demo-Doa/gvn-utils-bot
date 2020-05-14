@@ -43,9 +43,6 @@ public class GVNUtilsBotApp extends ListenerAdapter {
     public void onReady(@Nonnull ReadyEvent event) {
         super.onReady(event);
         event.getJDA().getPresence().setPresence(OnlineStatus.ONLINE, Activity.playing("Pin Bot, NSFW detector"));
-//        scheduler.scheduleAtFixedRate(() -> {
-//
-//        }, 0, 2, TimeUnit.MINUTES);
     }
 
     @Override

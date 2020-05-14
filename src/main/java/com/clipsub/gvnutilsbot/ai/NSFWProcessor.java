@@ -5,7 +5,7 @@ import clarifai2.dto.input.ClarifaiInput;
 import clarifai2.dto.model.Model;
 import clarifai2.dto.model.output.ClarifaiOutput;
 import clarifai2.dto.prediction.Concept;
-import com.clipsub.gvnutilsbot.helpers.URLExtractor;
+import com.clipsub.gvnutilsbot.helpers.URLUtils;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
@@ -23,9 +23,9 @@ public class NSFWProcessor {
     private static float SFW_THRESHOLD = 0.85f;
 
     public void handlePotentialNsfwMessage(Message m) {
-        String extracted = URLExtractor.extractUrl(m.getContentRaw());
-        if (extracted != null && m.getAttachments().size() == 0) {
-            this.processNsfwImageLink(extracted, m);
+        String extracted = URLUtils.extractUrl(m.getContentRaw());
+
+        if (!URLUtils.containsLink(m.getContentRaw()) && m.getAttachments().size() == 0) {
             return;
         }
 
@@ -38,6 +38,12 @@ public class NSFWProcessor {
             this.processAttachment(m);
         } catch (Exception e) {
             // Code...
+        }
+
+        // If no attachment.
+        if (extracted != null && m.getAttachments().size() == 0) {
+            this.processNsfwImageLink(extracted, m);
+            return;
         }
     }
 
