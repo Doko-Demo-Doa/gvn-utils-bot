@@ -25,7 +25,7 @@ public class NSFWProcessor {
     public void handlePotentialNsfwMessage(Message m) {
         String extracted = URLUtils.extractUrl(m.getContentRaw());
 
-        if (!URLUtils.containsLink(m.getContentRaw()) && m.getAttachments().size() == 0) {
+        if (!URLUtils.containsImageLink(m.getContentRaw()) && m.getAttachments().size() == 0) {
             return;
         }
 
