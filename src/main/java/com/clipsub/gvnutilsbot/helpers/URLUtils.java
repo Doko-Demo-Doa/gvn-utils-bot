@@ -9,7 +9,6 @@ import org.nibor.autolink.LinkType;
 
 import javax.imageio.ImageIO;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.EnumSet;
 import java.util.List;
